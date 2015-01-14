@@ -80,7 +80,7 @@ menuDisp[1] = "-Level Select-";
 menuDisp[2] = "Easy";
 menuDisp[3] = "Medium";
 menuDisp[4] = "Hard";
-menu(3, menuDisp, 0);
+int difficulty = menu(3, menuDisp, 0);
 ```
 
 ```c
@@ -94,7 +94,7 @@ string menuDisp[8]={
 	"Fast",
 	"", "", ""
 };
-menu(3, menuDisp, 38);
+int speed = menu(3, menuDisp, 38);
 ```
 
 
