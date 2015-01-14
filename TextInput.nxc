@@ -1,0 +1,183 @@
+//Text Input
+
+//current tick divide, helps with integers that are too large
+#define ctd           100
+#define maxms         (2000/ctd)
+#define divideshow    (maxms/3)  //in this case 3-2-1
+#define rows          4
+#define cols          10
+#define btmcols       5  //bottom columns, 1ok, 2<-, 3^, 4*), 5lck
+#define arraylength   40 //rows*cols
+unsigned long ms;
+bool debugTiming;//, snd = 1;
+
+/*  const byte layout[arraylength] = { //QWERTY
+	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 
+	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 
+	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ' ', 
+	'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '?'
+};  */
+
+
+const byte layout[arraylength] = { //Standard
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 
+	'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 
+	'u', 'v', 'w', 'x', 'y', 'z', ' ', ',', '.', '?', 
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+};
+
+
+void display(int x, int y, int lasty, bool snd, bool cptl) {
+//Initiation
+	int outx, outy;
+	byte layouta;
+	debugTiming = false;
+//Text
+	for (int a = 0; a<arraylength; a++) {
+		layouta = layout[a]; //FlattenVar is fussy...
+		if (layouta >= 97 && layouta <= 122) layouta -= cptl*32;
+		outx = (a%cols)*10+2;
+		outy = 56-(a-(a%cols)) / 10*8;
+		TextOut(outx, outy, FlattenVar(layouta), (a == (y*cols)+x)*4);
+		//Wait(100); //debugging
+	}
+	TextOut(4, 56-rows*8, "OK", (y == rows && x == 0)*4);            //done
+	if (cptl) TextOut(24, 56-rows*8, "AZ", (y == rows && x == 1)*4); //caps lock on
+	else      TextOut(24, 56-rows*8, "az", (y == rows && x == 1)*4); //caps lock off
+	TextOut(44, 56-rows*8, "<-", (y == rows && x == 2)*4);           //backspace
+	if (snd)  TextOut(64, 56-rows*8, "#)", (y == rows && x == 3)*4); //snd on
+	else      TextOut(64, 56-rows*8, "#X", (y == rows && x == 3)*4); //snd off
+	TextOut(80, 56-rows*8, "Lk", (y == rows && x == 4)*4);
+	NumOut(94, 56-rows*8, (ms+maxms-CurrentTick() / ctd) / divideshow+1, 0);
+//End of Keyboard  /  Text Output lines
+	LineOut(0, 56-rows*8, 99, 56-rows*8, 0);
+	LineOut(0, 47-rows*8, 99, 47-rows*8, 0);
+}
+
+
+string output(int x, int y, bool cptl) { // why this need lastyout????
+	if (y == rows && x == 4) ms = CurrentTick() / ctd; //lock
+	string out = "";
+	if (ms+maxms <= CurrentTick() / ctd) {
+		if (y == rows) {
+			if      (x == 0) out = "{"; //ok
+			else if (x == 1) out = "}"; //cap
+			else if (x == 2) out = "["; //bs
+			else if (x == 3) out = "]"; //snd
+		} else {
+			byte layoutn = layout[y*10+x];
+			if (layoutn >= 97 && layoutn <= 122) layoutn -= cptl*32;
+			out = FlattenVar(layoutn);
+		}
+		debugTiming = true;
+		ms = CurrentTick() / ctd;
+	}
+	return out;
+}
+
+void debugOut(string tmp, int oknotpressed, int snd, int x, int y, int lasty, string out) {
+	string msg = "";
+	msg = StrCat(msg,    "ms ", NumToStr(ms));
+	msg = StrCat(msg, " | max ", NumToStr(maxms));
+	msg = StrCat(msg, " | cur ", NumToStr(CurrentTick() / ctd));
+	msg = StrCat(msg, " | out ", NumToStr(debugTiming));
+	msg = StrCat(msg, " | tmp ", tmp, " | ");
+	SendResponseString(MAILBOX10, msg);
+	Wait(60);
+	msg = "";
+	msg = StrCat(msg,   "loop",  NumToStr(oknotpressed));
+	msg = StrCat(msg, " | snd ",  NumToStr(snd));
+	msg = StrCat(msg, " | x ",    NumToStr(x));
+	msg = StrCat(msg, " | y ",    NumToStr(y));
+	msg = StrCat(msg, " | lasty ", NumToStr(lasty));
+	msg = StrCat(msg, " | out ", out);
+	SendResponseString(MAILBOX10, msg);
+	Wait(60);
+}
+
+
+int senseButtonModded(int val, int currentrow, bool lr_ud) {
+	int lu, rd, colrow;
+	if (lr_ud) {
+		lu = BTNLEFT;
+		rd = BTNRIGHT;
+		if (currentrow == rows) colrow = btmcols;
+		else colrow = cols;
+	} else {
+		lu = BTNCENTER;
+		rd = BTNEXIT;
+		colrow = rows;
+	}
+	if (ButtonPressed(lu))   {
+		val--;
+		ms = CurrentTick() / ctd;
+	}
+	until (ButtonPressed(lu) == false)  {}
+	if (ButtonPressed(rd))  {
+		val++;
+		ms = CurrentTick() / ctd;
+	}
+	until (ButtonPressed(rd) == false) {}
+	if (val < 0) {val = colrow - lr_ud;}
+	if (val > colrow - lr_ud) {val = 0;}
+	return val;
+}
+
+
+string keyboard() {
+	ClearLine(LCD_LINE1);
+	ClearLine(LCD_LINE2);
+	ClearLine(LCD_LINE3);
+	ClearLine(LCD_LINE4);
+	ClearLine(LCD_LINE5);
+	ClearLine(LCD_LINE6);
+	int x = 0, y = 0, lasty = 0;
+	bool loop = true, snd = true, cptl = false;
+	string outstring = "", temp;
+	ms = (CurrentTick() / ctd);
+	SetLongAbort(true);
+	while (loop) {
+		x = senseButtonModded(x, y, true);
+		y = senseButtonModded(y, false, false);
+		if (lasty! = y && (lasty == rows || y == rows)) {
+			if (y == rows) x /  = (cols / btmcols);
+			else x* = (cols / btmcols);
+		}
+		display(x, y, lasty, snd, cptl);
+		temp = output(x, y, cptl);
+		temp = SubStr(temp, 0, 1); //Delete Null Terminator
+		if (temp == "{") {                       //FINISHED
+			if (snd) PlayTone(1000, 100);
+			loop = false;
+		} else if (temp == "}") {                //Capital
+			if (snd) PlayTone(1000, 100);
+			cptl = !cptl;
+		} else if (temp == "[") {                //Backspace
+			if (snd) PlayTone(3000, 100);
+			outstring = SubStr(outstring, 0, StrLen(outstring)-1);
+		} else if (temp == "]") {                //Sound
+			if (!snd) PlayTone(1000, 100);
+			snd = !snd;
+		} else if (temp! = "") {                 //Append
+			if (snd) PlayTone(2000, 100);
+			outstring = StrCat(outstring, temp);
+		}
+		TextOut(0, 48-rows*8, StrCat(outstring, " "), 0);
+		
+		//debugOut(temp, loop, snd, x, y, lasty, outstring);
+		lasty = y;
+		Wait(100);
+	}
+	return outstring;
+}
+
+	
+/*
+task main() {
+	string view = "";
+	view = keyboard();
+	//Wait(1000);
+	SendResponseString(MAILBOX10, view);
+	//Wait(1000);
+}
+*/

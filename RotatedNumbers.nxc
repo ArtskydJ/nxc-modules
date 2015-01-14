@@ -1,0 +1,25 @@
+#download "RotatedNumbers.ric"
+
+void RotatedNumbersOut(int x, int y, long num) {
+	RotatedNumbersOut2( x, y, NumToStr(num) );
+}
+
+void RotatedStringOfNumbersOut(int x, int y, string str) {
+	int tempInt;
+	byte currentDisp[1];
+	for (int i=0; i<StrLen(str); i++) {
+		tempInt = (StrToNum(SubStr(str, i, 1)));
+		currentDisp[0] = tempInt*5;
+		GraphicOutEx(x, y-(4*i), "RotatedNumbers.ric", currentDisp, 0);
+	}
+}
+
+/*
+task main() {
+	long n = 28173;
+	while(1) {
+		RotatedNumbersOut(94, 60, n);
+		NumOut(0, 0, n, 0);
+	}
+}
+//*/

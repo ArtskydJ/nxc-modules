@@ -1,0 +1,44 @@
+//Text Reader
+
+void readText(string flnm, int lnjmp, bool eight) {
+	bool endoffile;
+	int i, flsz, hndl;
+	unsigned int msg;
+	string screenout, more;
+
+	SetLongAbort(true);
+	endoffile = false;
+	msg = OpenFileRead(flnm, flsz, hndl);
+	if (msg!=LDR_SUCCESS) {
+		SendResponseNumber(MAILBOX10, msg);
+		if (msg == LDR_FILENOTFOUND) {
+			TextOut(0, 56, "File Not Found", 0);
+		}
+	}
+	while (ButtonPressed(BTNLEFT) == 0 && ButtonPressed(BTNRIGHT) == 0) {
+		CloseFile(hndl);
+		OpenFileRead(flnm, flsz, hndl);
+		for (int j = 0; j < i; j++) {
+			ReadLnString(hndl,screenout);
+		}
+		for (int j = 0; j < 7 + eight; j++) {
+			if (EOF == ReadLnString(hndl,screenout)) {
+				endoffile=true;
+			}
+			TextOut(0, 56-(j*8), screenout, 4096);
+		}
+		CloseFile(hndl);
+		until (ButtonPressed(0) || ButtonPressed(1)
+			|| ButtonPressed(2) || ButtonPressed(3)) {}
+		if (ButtonPressed(BTNEXIT)) { //Down
+			if (endoffile==0) {
+				i += lnjmp;
+			}
+		} else { //Up
+			endoffile=0;
+			i -= lnjmp;
+			if (i < 0) i = 0;
+		}
+		until (ButtonPressed(BTNEXIT) == 0 && ButtonPressed(BTNCENTER) == 0) {}
+	}
+}

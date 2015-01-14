@@ -1,0 +1,87 @@
+//High Score Template
+//Programmed By Joseph Dykstra
+#include "TextInput.nxc"
+
+/////////////////////////////   READ   //////////////////////////////
+int readHigh(string filename) {
+	string line = "";
+	int fileHandle, fileSize;
+	int result = OpenFileRead(filename, fileSize, fileHandle);
+	if (result == LDR_SUCCESS) {
+		ReadLnString(fileHandle, line);
+		CloseFile(fileHandle);
+		result = StrToNum(line);
+	}
+	return result;
+}
+	
+string readHighName(string filename) {
+	string line="";
+	int fileHandle, fileSize;
+	int result = OpenFileRead(filename, fileSize, fileHandle);
+	if (result == LDR_SUCCESS) {
+		ReadLnString(fileHandle, line);
+		ReadLnString(fileHandle, line);
+		CloseFile(fileHandle);
+	}
+	return line;
+}
+
+
+/////////////////////////////  WRITE  ///////////////////////////////
+void writeHigh(string filename, int newHighscore) {
+	int fileHandle, fileSize;
+	DeleteFile(filename);
+	CreateFile(filename, 64, fileHandle);
+	string tempStr = NumToStr(newHighscore);
+	WriteLnString(fileHandle, tempStr, fileSize);
+	CloseFile(fileHandle);
+}
+
+void writeHighName(string filename, int newHighscore) {
+	int fileHandle, fileSize;
+	DeleteFile(filename);
+	CreateFile(filename, 64, fileHandle);
+	string tempStr = NumToStr(newHighscore);
+	WriteLnString(fileHandle, tempStr, fileSize);
+	tempStr = keyboard();
+	WriteLnString(fileHandle, tempStr, fileSize);
+	CloseFile(fileHandle);
+}
+
+
+/////////////////////////////  OTHER  ///////////////////////////////
+/*
+void endGame(string filename, int myscore) {
+	ClearScreen();
+	string show;
+	show=StrCat("S:  ", NumToStr(myscore));
+	TextOut(0, 0, show, 0);
+	
+	TextOut(25, LCD_LINE4, "GAME OVER", 0);
+	if (myscore>readHigh(filename)) {
+		TextOut(0, 56, "U Made Highscore", 0);
+		
+		Wait(1500);
+		writeHighName(filename, myscore);
+		ClearScreen();
+	} else {
+		TextOut(0, 56, "Yo Not Make High", 0);
+		Wait(1500);
+	}
+		
+	show=StrCat("S:  ", NumToStr(myscore));
+	TextOut(0, 0, show, 0);
+	show=StrCat("HS: ", NumToStr(readHigh(filename)));
+	TextOut(0, 8, show, 0);
+	show=StrCat("HN: ", readHighName(filename));
+	TextOut(0, 16, show, 0);
+	
+	while(1){}
+}
+
+task main() {
+	int score = Random(100);
+	endGame("High.dat", score);
+}
+//*/

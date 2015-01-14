@@ -1,0 +1,147 @@
+//Morse Code Reader/Decoder
+/*  //CURENTLY THE GRAPHICS ARE NOT WORKING!!!
+#download "Morse-Splash.ric"
+#download "Morse-Splash2.ric"
+*/
+
+string decode(long in) { //International
+	string out="";
+	//LETTERS
+	if      (in==12)    out="a";  //use a switch?
+	else if (in==2111)  out="b";
+	else if (in==2121)  out="c";
+	else if (in==211)   out="d";
+	else if (in==1)     out="e";
+	else if (in==1121)  out="f";
+	else if (in==221)   out="g";
+	else if (in==1111)  out="h";
+	else if (in==11)    out="i";
+	else if (in==1222)  out="j";
+	else if (in==212)   out="k";
+	else if (in==1211)  out="l";
+	else if (in==22)    out="m";
+	else if (in==21)    out="n";
+	else if (in==222)   out="o";
+	else if (in==1221)  out="p";
+	else if (in==2212)  out="q";
+	else if (in==121)   out="r";
+	else if (in==111)   out="s";
+	else if (in==2)     out="t";
+	else if (in==112)   out="u";
+	else if (in==1112)  out="v";
+	else if (in==122)   out="w";
+	else if (in==2112)  out="x";
+	else if (in==2122)  out="y";
+	else if (in==2211)  out="z";
+	//NUMBERS
+	else if (in==12222)  out="1";
+	else if (in==11222)  out="2";
+	else if (in==11122)  out="3";
+	else if (in==11112)  out="4";
+	else if (in==11111)  out="5";
+	else if (in==21111)  out="6";
+	else if (in==22111)  out="7";
+	else if (in==22211)  out="8";
+	else if (in==22221)  out="9";
+	else if (in==22222)  out="0";
+	//PUNCTUATION
+	else if (in==121212)  out=".";
+	else if (in==221122)  out=",";
+	else if (in==112211)  out="?";
+	else if (in==122221)  out="'";
+	else if (in==212122)  out="!";
+	/*
+	else if (in==21121)   out="/";
+	else if (in==21221)   out="(";
+	else if (in==212212)  out=")";
+	else if (in==12111)   out="&";
+	else if (in==222111)  out=":";
+	else if (in==212121)  out=";";
+	else if (in==21112)   out="=";
+	else if (in==12121)   out="+";
+	else if (in==211112)  out="-";
+	else if (in==112212)  out="_";
+	else if (in==121121)  out="\"";
+	else if (in==1112112) out="$";
+	else if (in==122121)  out="@";
+	*/
+	return out;
+}
+
+
+bool waitForButton() {
+	bool ret=0;
+	until (ButtonPressed(1)==0
+	    && ButtonPressed(2)==0
+	    && ButtonPressed(3)==0) {}
+	//TextOut(0,56,"waiting",0);
+	while (ButtonPressed(1)==0
+	    && ButtonPressed(2)==0
+	    && ButtonPressed(3)==0) {}
+	//TextOut(0,56,".......",0);
+	ret = !ButtonPressed(BTNCENTER);
+	return ret;
+}
+
+
+string morseCode() {
+	/*  //CURENTLY THE GRAPHICS ARE NOT WORKING!!!
+	GraphicOut(50,32,"Morse-Splash2.ric",0);
+	GraphicOut(50,32,"FGB-Fox.ric",0);
+	TextOut(10,10,"fox out",0);
+	waitForButton();
+	*/
+	bool inloop1;  //entering character
+	bool inloop2;  //entering space
+	bool inloop3;  //submitting text
+	string data;        //representation of current character's entered morse code
+	string tempOutput;  //docoded "data", current character
+	string output;      //string of all entered text, excluding "tempOutput"
+	inloop3 = true;
+	while (inloop3) { //can exit
+		inloop2 = true;
+		while (inloop2) { //can enter space
+			tempOutput = "";
+			data = "";
+			inloop1 = true;
+			while (inloop1) { //entering character
+				//PRESSED
+				if (ButtonPressed(BTNLEFT)) { //dot
+					data = StrCat(data, "1");
+					PlayTone(2000, 250);
+					Wait(250);
+				}
+				if (ButtonPressed(BTNRIGHT)) { //dash
+					data = StrCat(data, "2");
+					PlayTone(2500, 250);
+					Wait(250);
+				}
+				tempOutput = decode(StrToNum(data));
+				SendResponseString(MAILBOX10, tempOutput);
+				TextOut(0, 8, StrCat(output, tempOutput, " "), 0);
+				TextOut(0, 0, " .    NEXT    _ ", 0);
+				inloop1 = waitForButton();
+			}
+			PlayTone(1500, 250); Wait(250);
+			output = StrCat(output, tempOutput);
+			TextOut(0,0," .    SPACE   _ ",0);
+			inloop2 = waitForButton();
+		}
+		PlayTone(1000, 250); Wait(250);
+		TextOut(0, 0, " .    DONE    _ ", 0);
+		inloop3 = waitForButton();
+		if (inloop3) output = StrCat(output, " ");
+	}
+	PlayTone(0500, 250); Wait(250);
+	return output;
+}
+
+
+/*
+task main()
+	{
+	string mc;
+	mc = morseCode();
+	TextOut(0, LCD_LINE3, mc, 0);
+	}
+//*/
