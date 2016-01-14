@@ -281,6 +281,7 @@ A small compilation of sounds to play at the end of a game.
 ###to do
 
 - more sounds!
+- add `#download ...` directives to automatically include the sounds.
 
 ###example
 
