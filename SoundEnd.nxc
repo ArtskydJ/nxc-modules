@@ -3,6 +3,11 @@
 #define soundDraw 1
 #define soundLose 2
 
+void PlayToneWait(int tone, int length) {
+	PlayTone(tone, length);
+	Wait(length);
+}
+
 void SoundEnd(int snd) {
 	if (snd == soundWin) { //use a switch?
 		PlayToneWait(1000, 200);
@@ -22,9 +27,4 @@ void SoundEnd(int snd) {
 		PlayToneWait(2400, 0600);
 		PlayToneWait(2300, 1000);
 	}
-}
-
-void PlayToneWait(int tone, int length) {
-	PlayTone(tone, length);
-	Wait(length);
 }
