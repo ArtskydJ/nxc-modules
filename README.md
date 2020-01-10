@@ -198,7 +198,9 @@ Wait(5000);
 ```
 
 
-
+<!--
+moved this to nxc-tetris
+	
 ## `RotatedNumbers.nxc`
 
 For when you want a game in portrait mode, and want to display numbers, e.g. score.
@@ -224,7 +226,7 @@ For the numbers to be up-side-right, you must hold your NXT so that the top is p
 long score = 28173;
 RotatedNumbersOut(94, 60, score);
 ```
-
+-->
 
 
 ## `TextReader.nxc`
