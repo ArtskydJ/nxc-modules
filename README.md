@@ -10,12 +10,29 @@ For the NXT, written in C, compiled with the free NXC compiler.
 - If something doesn't work, or has a dumb api, create an issue!
 
 
+## Including a module into your code
 
-#Button+-.nxc
+Currently, I expect a folder structure like this:
+```
+- /code
+	|- /nxc-modules
+	|	|- Button+-.nxc
+	|	|- Menu.nxc
+	|	|- ...
+	|
+	|- /your-project
+		\- your-file.nxc
+```
+
+And then `your-file.nxc` will do `#include "../nxc-modules/Button+-.nxc"`
+
+Note that some nxc-modules will `#include` other nxc-modules. They use `../nxc-modules/file_to_include.nxc` so that the relative path works from `/your-project` as well as from `/nxc-modules`. As far as I can tell, the NBC compiler always resolves relative paths to whichever file you're compiling, not to the file that included it. That is why I do `../nxc-modules/file_to_include.nxc` internally.
+
+## `Button+-.nxc`
 
 Set a number using the Left/Right buttons or the Up/Down buttons on the NXT.
 
-###exposes
+### exposes
 
 - `int senseButton(int val, bool lr_ud, int add, int high, bool cut)`
 	- `val` is the starting value.
@@ -27,9 +44,9 @@ Set a number using the Left/Right buttons or the Up/Down buttons on the NXT.
 	- `cut` is whether when the maximum value is reached the value should be cut (`true`) or wrap (`false`).
 	- Returns an modified `val`.
 
-###example
+### example
 ```c
-#include "Button+-.nxc"
+#include "../nxc-modules/Button+-.nxc"
 
 int age = 10;
 
@@ -41,20 +58,20 @@ while (ButtonPressed(BTNCENTER) == false) {
 
 
 
-#Menu.nxc
+## `Menu.nxc`
 
 *Requires enchanced NBC/NXC firmware.*
 
 Create a sweet menu to select stuff from. Great for game difficulty levels, options, and whatever!
 
-###exposes
+### exposes
 
 - `int menu(int numChoices, string menuDisp[], int titleX)`
 	- `numChoices` is how many choices you have to select.
 	- `menuDisp[]` are the strings to display on each menu line. Must be at least 8 elements long.
 	- `titleX` is the x posistion at which to display `menuDisp[0]`
 
-###to do
+### to do
 
 I know that this function works, but needs work to become (more) awesome:
 
@@ -70,9 +87,9 @@ I know that this function works, but needs work to become (more) awesome:
 	- The programmer should handle the title etc.
 	- This module shouldn't be trying to handle things it doesn't need to know about!
 
-###examples
+### examples
 ```c
-#include "Menu.nxc"
+#include "../nxc-modules/Menu.nxc"
 
 string menuDisp[8] = {"","","","","","","",""};
 menuDisp[0] = "MY AWESOME GAME";
@@ -84,7 +101,7 @@ int difficulty = menu(3, menuDisp, 0);
 ```
 
 ```c
-#include "Menu.nxc"
+#include "../nxc-modules/Menu.nxc"
 
 string menuDisp[8]={
 	"GAME",
@@ -99,11 +116,11 @@ int speed = menu(3, menuDisp, 38);
 
 
 
-#MorseInput.nxc
+## `MorseInput.nxc`
 
 Use morse code as a keyboard. Left button is a dot, right button is a dash, and the center button goes to the next character.
 
-###exposes
+### exposes
 
 - `decode()`
 	- Used internally
@@ -116,6 +133,8 @@ Use morse code as a keyboard. Left button is a dot, right button is a dash, and 
 	- Returns the resulting string on exit.
 
 ```c
+#include "../nxc-modules/MorseInput.nxc"
+
 string morseCodeString;
 TextOut(0, LCD_LINE1, "Type your name", 0);
 TextOut(0, LCD_LINE2, "using morse code!", 0);
@@ -125,11 +144,11 @@ TextOut(0, LCD_LINE3, morseCodeString, 0);
 
 
 
-#HighScore.nxc
+## `HighScore.nxc`
 
 A collection of functions to read and write persistent high scores.
 
-###exposes
+### exposes
 
 - `int readHigh(string filename)`
 	- Returns the highscore.
@@ -143,7 +162,7 @@ A collection of functions to read and write persistent high scores.
 	- Writes a highscore to a file.
 	- Opens a "keyboard" for the player to input their name. (See [TextInput.nxc](#textinputnxc).)
 
-###to do
+### to do
 
 - Create a function that, when given a score, checks if it's higher before writing.
 - Create a function that returns both the name and the score. (In a string? IDK...)
@@ -151,9 +170,11 @@ A collection of functions to read and write persistent high scores.
 - Save more than just the *highest* score.
 - Save scores in a standard way. (E.g., JSON, .properties, yml)
 
-###example
+### example
 
 ```c
+#include "../nxc-modules/HighScore.nxc"
+
 TextOut(0, LCD_LINE5, "GAME OVER!", 0);
 
 if (score > readHigh("GAME_high.dat")) {
@@ -178,13 +199,13 @@ Wait(5000);
 
 
 
-#RotatedNumbers.nxc
+## `RotatedNumbers.nxc`
 
 For when you want a game in portrait mode, and want to display numbers, e.g. score.
 
 For the numbers to be up-side-right, you must hold your NXT so that the top is pointing left.
 
-###exposes
+### exposes
 
 - `void RotatedNumbersOut(int x, int y, long num)`
 	- `x` is the x position at which the numbers starts printing.
@@ -195,16 +216,18 @@ For the numbers to be up-side-right, you must hold your NXT so that the top is p
 	- `y` is the y position at which the numbers starts printing.
 	- `str` is the string of numbers that gets printed.
 
-###example
+### example
 
 ```c
+#include "../nxc-modules/RotatedNumbers.nxc"
+
 long score = 28173;
 RotatedNumbersOut(94, 60, score);
 ```
 
 
 
-#TextReader.nxc
+## `TextReader.nxc`
 
 *Requires enchanced NBC/NXC firmware.*
 
@@ -215,7 +238,7 @@ Display a text file on-screen. Could be used for printing instructions for a gam
 	- `lnjmp` is how many lines jump when the down button is pressed.
 	- `eight` is whether eight (`true`) or seven (`false`) lines are used to display the file. The bottom line is the toggled line.
 
-###to do
+### to do
 
 - dumb line controls
 	- have parameters that specify the starting line, and ending line.
@@ -224,21 +247,23 @@ Display a text file on-screen. Could be used for printing instructions for a gam
 	- It could use the left/right buttons.
 	- It would need another function or parameter to specify different buttons.
 
-###example
+### example
 
 ```c
-	readText("TextFileRead.txt", 7, true);
+#include "../nxc-modules/TextReader.nxc"
+
+readText("TextFileRead.txt", 7, true);
 ```
 
 
 
-#TextInput.nxc
+## `TextInput.nxc`
 
 *Requires enchanced NBC/NXC firmware.*
 
 Throw a keyboard on the screen, so the user can input text!
 
-###exposes
+### exposes
 
 - `display()`
 	- Used internally
@@ -251,9 +276,11 @@ Throw a keyboard on the screen, so the user can input text!
 - `string keyboard()`
 	- Returns the string that you type
 
-###example
+### example
 
 ```c
+#include "../nxc-modules/TextInput.nxc"
+
 string name;
 TextOut(0, LCD_LINE1, "Type your name:", 0);
 name = keyboard();
@@ -263,11 +290,11 @@ TextOut(0, LCD_LINE5, StrCat("Hello ", name, "!"), 0);
 
 
 
-#SoundEnd.nxc
+## `SoundEnd.nxc`
 
 A small compilation of sounds to play at the end of a game.
 
-###exposes
+### exposes
 
 - `void SoundEnd(int snd)`
 	- `snd` is the sound to play:
@@ -278,12 +305,12 @@ A small compilation of sounds to play at the end of a game.
 	- Used internally
 	- Should be split into it's own module.
 
-###to do
+### to do
 
 - more sounds!
 - add `#download ...` directives to automatically include the sounds.
 
-###example
+### example
 
 ```c
 TextOut(0, LCD_LINE1, "GAME OVER!!!", 0);
@@ -292,6 +319,6 @@ SoundEnd( score > 50 ? soundWin : soundLose )
 
 
 
-#License
+## License
 
 [VOL](http://veryopenlicense.com)

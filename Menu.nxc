@@ -1,4 +1,4 @@
-#include "Button+-.nxc"
+#include "../nxc-modules/Button+-.nxc"
 
 int menu(int numChoices, string menuDisp[], int titleX) {
 	int currentChoice = 0;

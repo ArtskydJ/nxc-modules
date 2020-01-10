@@ -108,16 +108,16 @@ int senseButtonModded(int val, int currentrow, bool lr_ud) {
 		rd = BTNEXIT;
 		colrow = rows;
 	}
-	if (ButtonPressed(lu))   {
+	if (ButtonPressed(lu, false))   {
 		val--;
 		ms = CurrentTick() / ctd;
 	}
-	until (ButtonPressed(lu) == false)  {}
-	if (ButtonPressed(rd))  {
+	until (ButtonPressed(lu, false) == false)  {}
+	if (ButtonPressed(rd, false))  {
 		val++;
 		ms = CurrentTick() / ctd;
 	}
-	until (ButtonPressed(rd) == false) {}
+	until (ButtonPressed(rd, false) == false) {}
 	if (val < 0) {val = colrow - lr_ud;}
 	if (val > colrow - lr_ud) {val = 0;}
 	return val;
@@ -140,8 +140,8 @@ string keyboard() {
 		x = senseButtonModded(x, y, true);
 		y = senseButtonModded(y, false, false);
 		if (lasty! = y && (lasty == rows || y == rows)) {
-			if (y == rows) x /  = (cols / btmcols);
-			else x* = (cols / btmcols);
+			if (y == rows) x /= (cols / btmcols);
+			else x *= (cols / btmcols);
 		}
 		display(x, y, lasty, snd, cptl);
 		temp = output(x, y, cptl);

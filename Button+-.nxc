@@ -8,14 +8,14 @@ int senseButton(int val, bool lr_ud, int add, int high, bool cut) {
 		rd = BTNEXIT;
 		SetLongAbort(true);
 	}
-	if (ButtonPressed(lu)) {
+	if (ButtonPressed(lu, false)) {
 		val -= add;
 	}
-	if (ButtonPressed(rd)) {
+	if (ButtonPressed(rd, false)) {
 		val += add;
 	}
-	until (ButtonPressed(lu) == false) {}
-	until (ButtonPressed(rd) == false) {}
+	until (ButtonPressed(lu, false) == false) {}
+	until (ButtonPressed(rd, false) == false) {}
 
 	// range check
 	if (cut) {

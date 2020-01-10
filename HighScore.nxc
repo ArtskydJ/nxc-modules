@@ -1,6 +1,6 @@
 //High Score Template
 //Programmed By Joseph Dykstra
-#include "TextInput.nxc"
+#include "../nxc-modules/TextInput.nxc"
 
 /////////////////////////////   READ   //////////////////////////////
 int readHigh(string filename) {
